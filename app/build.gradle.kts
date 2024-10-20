@@ -36,7 +36,6 @@ android {
 }
 chaquopy {
     defaultConfig {
-        buildPython("C:/Users/fpt/AppData/Local/Programs/Python/Python310/python.exe")
         pip {
             install("numpy")
             install("scipy")
