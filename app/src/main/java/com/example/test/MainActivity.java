@@ -3,6 +3,7 @@ package com.example.test;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -17,6 +18,7 @@ import android.os.Handler;
 import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private Uri audioUri;
     private Activity activity;
     private PyObject model;
+    private ObjectAnimator rotateAnimator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +66,11 @@ public class MainActivity extends AppCompatActivity {
         thumbnailImageView = findViewById(R.id.thumbnail);
 
         playButton.setBackgroundResource(R.drawable.baseline_play_arrow_24);
+
+        rotateAnimator = ObjectAnimator.ofFloat(thumbnailImageView, "rotation", 0f, 360f);
+        rotateAnimator.setDuration(8000);
+        rotateAnimator.setInterpolator(new LinearInterpolator());
+        rotateAnimator.setRepeatCount(ObjectAnimator.INFINITE);
 
         // Thiết lập các listener cho các nút
         button.setOnClickListener(v -> openFileChooser());
@@ -92,6 +100,24 @@ public class MainActivity extends AppCompatActivity {
 
         loadModel();
     }
+
+    private void startRotation() {
+        if (rotateAnimator != null) {
+            if (rotateAnimator.isPaused()) {
+                rotateAnimator.resume();
+            } else if (!rotateAnimator.isRunning()) {
+                rotateAnimator.start();
+            }
+        }
+    }
+
+    private void stopRotation() {
+        if (rotateAnimator != null && rotateAnimator.isRunning()) {
+            rotateAnimator.pause();
+        }
+    }
+
+
     private void updateIconPosition(int start,int id ) {
         int totalDurationInSeconds = mediaPlayer.getDuration()/ 1000;;
         float seekBarWidth = seekBar.getWidth() - 2 * getResources().getDimensionPixelSize(R.dimen.seek_bar_padding);
@@ -120,10 +146,10 @@ public class MainActivity extends AppCompatActivity {
                 thumbnailImageView.setImageBitmap(thumbnail);
             } else {
 
-                thumbnailImageView.setImageResource(R.drawable.default_thumbnail1);
+                thumbnailImageView.setImageResource(R.drawable.default_thumbnail2);
             }
         } else {
-            thumbnailImageView.setImageResource(R.drawable.default_thumbnail1);
+            thumbnailImageView.setImageResource(R.drawable.default_thumbnail2);
         }
 
         mmr.release();
@@ -146,9 +172,11 @@ public class MainActivity extends AppCompatActivity {
         if (mediaPlayer != null) {
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
+                stopRotation();
                 playButton.setBackgroundResource(R.drawable.baseline_play_arrow_24);
             } else {
                 mediaPlayer.start();
+                startRotation();
                 playButton.setBackgroundResource(R.drawable.baseline_pause_24);
                 updateSeekBar();
             }
@@ -227,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
             seekBar.setMax(mediaPlayer.getDuration());
             timeAudio.setText(formatTime(mediaPlayer.getDuration()));
             playButton.setBackgroundResource(R.drawable.baseline_pause_24);
+            startRotation();
             updateSeekBar();
         } catch (IOException e) {
             Toast.makeText(this, "Failed to play audio", Toast.LENGTH_SHORT).show();

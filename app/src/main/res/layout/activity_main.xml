@@ -23,7 +23,7 @@
             android:layout_gravity="center"
             android:layout_margin="50dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/default_thumbnail1" />
+            android:src="@drawable/default_thumbnail2" />
     </FrameLayout>
 
     <TextView
